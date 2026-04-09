@@ -5,10 +5,11 @@ const STM_LIMIT = 6;
 let shortTermMemory = [];
 let counter = 0;
 
-export function addToShortTermMemory(user, assistant) {
-  counter++;
-  shortTermMemory.push({ user, assistant, id: counter });
+export function addToShortTermMemory(user, assistant, step1_decision) {
+  shortTermMemory.push({ user, assistant, step1_decision, id: counter });
   if (shortTermMemory.length > STM_LIMIT) shortTermMemory.shift();
+  console.log(shortTermMemory);
+  counter++;
   return counter;
 }
 
@@ -17,7 +18,7 @@ export function getShortTermArray(){
 }
 
 export function getCounter(){
-  return counter + 1;
+  return counter;
 }
 
 export function getShortTermMemory(){

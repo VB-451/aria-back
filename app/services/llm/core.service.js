@@ -1,6 +1,6 @@
-import { callLLM } from "./llm.service.js";
+import { callLLM, callLLMStream } from "./llm.service.js";
 
-export const generate = async ({ userPrompt, stm, relevantMemories, toolData, currentDateTime}) => {
+export const generate = async ({ userPrompt, stm, relevantMemories, toolData, currentDateTime, onToken}) => {
     const prompt = `
 Today is ${currentDateTime}.
 
@@ -26,9 +26,13 @@ Respond naturally to the user's latest message:
 ${userPrompt}
 `
     
-    console.log(`Final Prompt:  ${prompt}`)
-    const response = await callLLM(prompt, "aria-core")
-    
-    
-    return response;
+    // console.log(`Final Prompt:  ${prompt}`)
+    // const response = await callLLM(prompt, "aria-core", true)
+    // return response;
+
+    if (!onToken) {
+        return await callLLM(prompt, "aria-core");
+    }
+
+    return await callLLMStream(prompt, "aria-core", onToken);
 }

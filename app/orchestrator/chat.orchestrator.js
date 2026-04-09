@@ -4,7 +4,7 @@ import * as coreService from "../services/llm/core.service.js";
 import * as memoryDecider from "../services/llm/memory-decider.service.js";
 import { executeTool } from "../services/tools/toolExecutor.service.js";
 
-export const process = async (userPrompt) => {
+export const process = async (userPrompt, onToken) => {
     
   const now = new Date();
     const currentDateTime = now.toISOString().slice(0, 19).replace("T", " ");
@@ -31,18 +31,20 @@ export const process = async (userPrompt) => {
         relevantMemories,
         toolData,
         currentDateTime,
+        onToken
     });
 
-    console.log(`Final Response: ${finalResponse}`)
+    // console.log(`Final Response: ${finalResponse}`)
 
-    const id = memoryService.addToShortTermMemory(userPrompt, finalResponse);
-
+    const counter = memoryService.getCounter();
+    memoryService.addToShortTermMemory(userPrompt, finalResponse, route);
+    
     handleMemorySave(userPrompt, finalResponse);
 
     return {
         step1_decision: route,
         reply: finalResponse,
-        id,
+        id: counter,
         relevantMemories
     };
 }

@@ -29,3 +29,39 @@ export const callEmbeddings = async (text) => {
   const data = await response.json();
   return data.embedding;
 };
+
+export const callLLMStream = async (prompt, model, onToken) => {
+  const response = await fetch("http://localhost:11434/api/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json"},
+    body: JSON.stringify({
+      model,
+      prompt,
+      stream: true
+    })
+  });
+
+  let buffer = "";
+  let fullText = "";
+
+  for await (const chunk of response.body) {
+    buffer += chunk.toString();
+
+    const lines = buffer.split("\n");
+    buffer = lines.pop();
+
+    for (const line of lines) {
+      if (!line.trim()) continue;
+
+      const data = JSON.parse(line);
+
+      const token = data.response;
+      if (!token) continue;
+
+      fullText += token;
+      onToken(token);
+    }
+  }
+
+  return fullText;
+};
