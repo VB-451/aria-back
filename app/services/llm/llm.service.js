@@ -30,8 +30,8 @@ export const callEmbeddings = async (text) => {
   return data.embedding;
 };
 
-export const callLLMStream = async (prompt, model, onToken) => {
-  const response = await fetch("http://localhost:11434/api/generate", {
+export const callLLMStream = async (prompt, model, onToken, routeFunction) => {
+  const response = await fetch(`${OLLAMA_URL}/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json"},
     body: JSON.stringify({
@@ -43,6 +43,9 @@ export const callLLMStream = async (prompt, model, onToken) => {
 
   let buffer = "";
   let fullText = "";
+
+  const startMarker = `${routeFunction}__START__`;
+  onToken(startMarker);
 
   for await (const chunk of response.body) {
     buffer += chunk.toString();

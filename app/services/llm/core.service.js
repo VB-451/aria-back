@@ -1,6 +1,6 @@
 import { callLLM, callLLMStream } from "./llm.service.js";
 
-export const generate = async ({ userPrompt, stm, relevantMemories, toolData, currentDateTime, onToken}) => {
+export const generate = async ({ userPrompt, stm, relevantMemories, routeFunction, toolData, currentDateTime, onToken}) => {
     const prompt = `
 Today is ${currentDateTime}.
 
@@ -34,5 +34,5 @@ ${userPrompt}
         return await callLLM(prompt, "aria-core");
     }
 
-    return await callLLMStream(prompt, "aria-core", onToken);
+    return await callLLMStream(prompt, "aria-core", onToken, routeFunction);
 }

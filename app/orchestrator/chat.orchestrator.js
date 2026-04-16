@@ -7,8 +7,16 @@ import { executeTool } from "../services/tools/toolExecutor.service.js";
 export const process = async (userPrompt, onToken) => {
     
   const now = new Date();
-    const currentDateTime = now.toISOString().slice(0, 19).replace("T", " ");
-
+    const currentDateTime = new Intl.DateTimeFormat("sv-SE", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    }).format(now).replace(",", "");
+    
     const stm = memoryService.getShortTermMemory();
 
     const route = await routerService.decide({
@@ -24,11 +32,13 @@ export const process = async (userPrompt, onToken) => {
     }
 
     const relevantMemories = await memoryService.getRelatedFacts(userPrompt, route.subjects);
+    console.log(relevantMemories);
     
     const finalResponse = await coreService.generate({
         userPrompt,
         stm,
         relevantMemories,
+        routeFunction: route.function,
         toolData,
         currentDateTime,
         onToken
