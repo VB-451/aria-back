@@ -165,7 +165,6 @@ The memory system combines structured storage with semantic search.
 
 ## Limitations
 
-* No response streaming (yet)
 * Single active conversation
 * Fully local (no remote deployment)
 * Models are not fine-tuned → may occasionally hallucinate
