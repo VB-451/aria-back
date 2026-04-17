@@ -4,7 +4,7 @@ import * as coreService from "../services/llm/core.service.js";
 import * as memoryDecider from "../services/llm/memory-decider.service.js";
 import { executeTool } from "../services/tools/toolExecutor.service.js";
 
-export const process = async (userPrompt, onToken) => {
+export const process = async (userPrompt, onToken, eventSendFunction) => {
     
   const now = new Date();
     const currentDateTime = new Intl.DateTimeFormat("sv-SE", {
@@ -34,6 +34,8 @@ export const process = async (userPrompt, onToken) => {
     const relevantMemories = await memoryService.getRelatedFacts(userPrompt, route.subjects);
     console.log(relevantMemories);
     
+    eventSendFunction("start", {routeFunction: route.function})
+
     const finalResponse = await coreService.generate({
         userPrompt,
         stm,

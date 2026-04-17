@@ -44,9 +44,6 @@ export const callLLMStream = async (prompt, model, onToken, routeFunction) => {
   let buffer = "";
   let fullText = "";
 
-  const startMarker = `${routeFunction}__START__`;
-  onToken(startMarker);
-
   for await (const chunk of response.body) {
     buffer += chunk.toString();
 
