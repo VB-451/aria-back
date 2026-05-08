@@ -1,4 +1,4 @@
-import { YoutubeTranscript } from '@danielxceron/youtube-transcript';
+import { fetchTranscript } from 'youtube-transcript-plus'; 
 
 function extractUrlFromPrompt(prompt) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -15,9 +15,7 @@ export async function getYoutubeTranscript(prompt) {
   }
 
   try {
-    const transcript = await YoutubeTranscript.fetchTranscript(videoUrl,  {
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    });
+    const transcript = await fetchTranscript(videoUrl)
     const fullText = transcript.map(item => item.text).join(" ");
     return fullText;
   } catch (err) {

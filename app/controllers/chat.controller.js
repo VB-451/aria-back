@@ -1,31 +1,9 @@
 import * as chatOrchestrator from "../orchestrator/chat.orchestrator.js";
-import * as memoryService from "../services/memory/memory.service.js";
-
-export const getLastMessages = (req, res) => {
-  try {
-    res.json({
-      interactions: memoryService.getShortTermArray(),
-      counter: memoryService.getCounter(),
-    });
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
-  }
-};
-
-export const deleteAllMessages = (req, res) => {
-  memoryService.deleteShortTerm();
-  res.send("Short memory deleted");
-};
-
-export const deleteMessage = (req, res) => {
-  const { index } = req.body;
-  memoryService.deleteFromIndex(index);
-  res.send("Messages deleted");
-};
 
 export const askMessage = async (req, res) => {
-  const { prompt } = req.body;
-
+  const { prompt, regenerateSiblingNodeID, answerBool } = req.body;
+  console.log(regenerateSiblingNodeID);
+  
   try {
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
@@ -45,12 +23,16 @@ export const askMessage = async (req, res) => {
       (token) => {
         sendEvent("token", token);
       },
-      sendEvent
+      sendEvent,
+      regenerateSiblingNodeID,
+      answerBool
     );
 
     sendEvent("end", {
       id: result.id,
-      step1_decision: result.step1_decision
+      parent_id: result.parent_id,
+      step1_decision: result.step1_decision,
+      relevantMemories: result.relevantMemories,
     });
 
     res.end();

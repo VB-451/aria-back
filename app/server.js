@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 
 import chatRoutes from "./routes/chat.routes.js";
+import conversationRoutes from "./routes/conversation.routes.js"
 import ttsRoutes from "./routes/tts.routes.js";
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(cors({
 app.use(express.json());
 
 app.use("/chat", chatRoutes);
+app.use("/conversation", conversationRoutes);
 app.use("/tts", ttsRoutes);
 
 app.listen(4000, () =>

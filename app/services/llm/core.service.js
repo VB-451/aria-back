@@ -7,9 +7,8 @@ Today is ${currentDateTime}.
 ${stm ? `
 <previous_messages>
 ${stm}
-</previous_messages>`
-: ""
-}
+</previous_messages>
+` : ""}
 ${relevantMemories ? `
 <relevant_user_memories>
 ${relevantMemories}

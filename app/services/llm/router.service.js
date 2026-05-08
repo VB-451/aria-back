@@ -4,7 +4,13 @@ export const decide = async ({ userPrompt, stm, currentDateTime }) => {
   const prompt = `
 Today is ${currentDateTime}.
 
-${stm ? `Latest interaction:\n${stm}` : ""}
+${stm ? `
+
+<previous_messages>
+${stm}
+</previous_messages>
+
+` : ""}
 
 Analyze the user's message and decide:
 - if a function is needed
