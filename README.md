@@ -110,6 +110,40 @@ Aria supports a set of modular tools executed dynamically:
 Tools are defined declaratively and executed through a centralized executor layer.
 
 ---
+## Conversation Tree System
+
+Aria stores conversations as a node-based tree structure.
+
+Each interaction is represented as a node:
+
+- id
+- parent_id
+- children_ids
+- role
+- content
+
+This architecture enables:
+
+* **Response regeneration**
+  Regenerating an answer creates a new assistant branch without deleting previous generations.
+
+* **Question editing**
+  Editing a previous user message creates an alternative conversation path while preserving the original history.
+
+* **Branch navigation**
+  Multiple conversational paths can coexist and be revisited independently.
+
+### Example Structure
+
+```text
+system
+ └── user-1
+      └── assistant-1
+           └── user-2
+                ├── assistant-2a
+                └── assistant-2b
+
+```
 
 ## Memory System
 
@@ -152,6 +186,9 @@ The memory system combines structured storage with semantic search.
 * **Tool Execution Layer**
   Structured execution of backend functions with prompt injection
 
+* **Branching Conversation History**
+  Supports alternative conversational paths through a node-tree chat architecture
+
 * **Semantic Memory Retrieval**
   Context-aware memory selection using embeddings
 
@@ -173,5 +210,5 @@ The memory system combines structured storage with semantic search.
 
 ## Notes
 
-This project focuses on **system design and orchestration of LLM-based workflows**, rather than model training.
+This project focuses on system design and orchestration of LLM-based workflows, rather than model training.
 It demonstrates how multiple specialized models, tools, and memory systems can be combined into a cohesive assistant.
