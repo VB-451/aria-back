@@ -1,9 +1,10 @@
 import fs from "fs";
 import { callEmbeddings } from "../llm/llm.service.js"
+import { getConfigParameter } from "../configuration/configuration.service.js";
 
 
-const FACTUAL_VECTOR_MEMORY_FILE = "./factual_vector_memory.json";
-const SUBJECTS_VECTOR_MEMORY_FILE = "./subjects_vector_memory.json";
+const FACTUAL_VECTOR_MEMORY_FILE = "./storage/factual_vector_memory.json";
+const SUBJECTS_VECTOR_MEMORY_FILE = "./storage/subjects_vector_memory.json";
 
 
 let factualMemoryCache = null;
@@ -112,8 +113,9 @@ export async function searchFactualMemory(supposedFact, supposedSubjects, topN =
       similarity: cosineSimilarity(factEmbedding, m.embedding) * 0.7 + subject.similarity * 0.3,
     };
   });
+  const memorySearchThreshold = getConfigParameter("memorySearchThreshold");
   const scored = unfilteredScored.filter(fact =>{
-    return fact.similarity > 0.67;
+    return fact.similarity > memorySearchThreshold;
   })
   return scored.sort((a, b) => b.similarity - a.similarity).slice(0, topN);
 }

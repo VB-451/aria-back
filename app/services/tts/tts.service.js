@@ -1,5 +1,6 @@
 import { spawn } from "child_process";
 import path from "path";
+import { getConfigParameter } from "../configuration/configuration.service.js";
 
 const PIPER_ENGINE_LOCATION = process.env.PIPER_ENGINE_LOCATION;
 const PIPER_TTS_MODEL_LOCATION = process.env.PIPER_TTS_MODEL_LOCATION;
@@ -12,7 +13,7 @@ export const generateSpeech = (text) => {
     const piper = spawn(PIPER_ENGINE_LOCATION, [
       "-m", PIPER_TTS_MODEL_LOCATION,
       "-f", filePath,
-      "--length_scale", "1.3",
+      "--length_scale", String(getConfigParameter("ttsTalkSpeed"))
     ]);
 
     piper.stdin.write(text);

@@ -1,7 +1,8 @@
 import fs from "fs";
 import path from "path";
+import { pushToAlreadyNotified } from "../watchers/todo.watcher.js";
 
-const TODO_FILE = path.join(process.cwd(), "todos.json");
+const TODO_FILE = path.join(process.cwd(), "/storage/todos.json");
 
 function ensureTodoFile() {
   if (!fs.existsSync(TODO_FILE)) {
@@ -11,6 +12,9 @@ function ensureTodoFile() {
 function readTasks() {
   ensureTodoFile();
   const raw = fs.readFileSync(TODO_FILE, "utf-8");
+  if (!raw){
+    return []
+  }
   return JSON.parse(raw);
 }
 
@@ -20,7 +24,11 @@ function writeTasks(tasks) {
 
 export function addTask(task, due = null, tag = null) {
   const tasks = readTasks();
-  tasks.push({ task, due, tag, done: false });
+  const newTask = {task, due, tag, done: false, id: Date.now()}
+  tasks.push(newTask);
+  if(newTask.due){
+    pushToAlreadyNotified(newTask.id)
+  }
   writeTasks(tasks);
   return `Task added: "${task}"`;
 }
@@ -69,7 +77,8 @@ export function completeTask(identifier) {
 
 export function listTasks({ due = null, tag = null, done = null } = {}) {
   let tasks = readTasks();
-  if (due !== null) tasks = tasks.filter(t => t.due === due);
+  // if (due !== null) tasks = tasks.filter(t => t.due.includes(due));
+  if (due !== null) tasks = tasks.filter(t => t.due?.includes(due));
   if (tag !== null) tasks = tasks.filter(t => t.tag.toLowerCase() === tag.toLowerCase());
   if (done !== null) tasks = tasks.filter(t => t.done === done);
   if (tasks.length === 0) return "No tasks found matching the criteria.";

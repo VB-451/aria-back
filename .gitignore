@@ -1,5 +1,4 @@
 .env
 /node_modules
-todos.json
-*memory.json
-*whitelist.json
+/storage
+app/auth/google.auth.js

@@ -21,6 +21,9 @@ Message: "${userPrompt}"
 
   const response = await callLLM(prompt, "aria-router");
 
+  console.log(response);
+  
+
   try {
     return JSON.parse(response);
   } catch {

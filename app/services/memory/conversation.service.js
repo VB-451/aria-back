@@ -29,8 +29,6 @@ export const getConversation = () =>{
 }
 
 export const nullifyConversation = () =>{
-  console.log(`nullyfying`);
-    
   conversation = createConversation();
 }
 
@@ -190,7 +188,7 @@ export const getLastInteractions = (numberOfInteractions, nodeId) => {
 
   while (current && result.length < numberOfInteractions * 2) {
     if (current.role !== 'system') {
-      result.push(`${current.role === "user" ? "User:" : "Assistant:"} ${current.content}`)
+      result.push(`${current.role === "user" ? "\nUser:" : "Assistant:"} ${current.content}`)
     }
 
     current = current.parentId
@@ -198,7 +196,7 @@ export const getLastInteractions = (numberOfInteractions, nodeId) => {
       : null
   }
 
-  return result.reverse()
+  return result.reverse().join("\n")
 }
 
 const getSiblings = (nodeId) => {
@@ -208,26 +206,3 @@ const getSiblings = (nodeId) => {
   const parent = conversation.nodes[node.parentId]
   return parent.childrenIds.map(id => conversation.nodes[id])
 }
-
-// const u1 = appendUserMessage('Hello')
-// const a1 = appendAssistantMessage('Hi!', null)
-
-// console.log(getPath(conversation.currentNodeId))
-// console.log("----------------------");
-
-// const u2 = appendUserMessage( 'Tell me a joke')
-// const a2 = appendAssistantMessage('Joke A', "weather.now")
-
-
-// console.log(getPath(conversation.currentNodeId))
-// console.log("----------------------");
-
-// // regenerate
-// const a2b = regenerate(a2.id, 'Joke B')
-
-// // switch branch
-// switchBranch(a2b.id)
-
-// // get visible chat
-// console.log(getPath(conversation.currentNodeId))
-// console.log("----------------------");

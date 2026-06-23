@@ -1,11 +1,21 @@
 import { exec, spawn } from "child_process";
 import fs from "fs";
-
-const whitelist = JSON.parse(fs.readFileSync("./exec_whitelist.json", "utf-8"))
+import { retrieveWhitelist } from "../services/whitelist/whitelist.service.js";
 
 export function safeExec(type, name) {
+  
+  const whitelist = retrieveWhitelist();
+
   if (type === "apps") {
-    const commands = whitelist.apps[name.toLowerCase()];
+    
+    let commands;
+
+    for(const key of Object.keys(whitelist.apps)){
+      if(name.toLowerCase() === key.toLowerCase()){
+        commands = whitelist.apps[key];
+      }
+    }
+
     if (!commands) {
       console.warn(`[Aria] App "${name}" not allowed.`);
       return;
@@ -28,7 +38,15 @@ export function safeExec(type, name) {
     });
   } else if (type === "links") {
     let delay = 0;
-    const group = whitelist.links[name.toLowerCase()];
+    
+    let group;
+
+    for(const key of Object.keys(whitelist.links)){
+      if(name.toLowerCase() === key.toLowerCase()){
+        group = whitelist.links[key];
+      }
+    }
+    
     if (!group) {
       console.warn(`[Aria] Link group "${name}" not allowed.`);
       return;
@@ -47,20 +65,28 @@ export function safeExec(type, name) {
       
       delay += 1300;
     });
-  } else if(type === "node") {
-    const parameters = whitelist.node[name.toLowerCase()]
-    if (!parameters) {
-      console.warn(`[Aria] Node "${name}" not allowed.`);
-      return;
+  } else if (type === "node") {
+    
+    let parameters;
+
+    for(const key of Object.keys(whitelist.node)){
+      if(name.toLowerCase() === key.toLowerCase()){
+        parameters = whitelist.node[key];
+      }
     }
-    spawn("node", [parameters.js], {
-        cwd: parameters.location,
+
+    if (!parameters) {
+        console.warn(`[Aria] Node "${name}" not allowed.`);
+        return;
+    }
+    spawn("npm", ["run", parameters.script], {
+        cwd: parameters.directory,
         stdio: "inherit",
         shell: true
     });
-    exec(`start ${parameters.webpage}`)
+    exec(`start ${parameters.webpage}`);
     return;
-  } 
+}
   
   else {
     console.warn(`[Aria] Invalid type "${type}" requested.`);

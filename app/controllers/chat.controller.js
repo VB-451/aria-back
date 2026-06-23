@@ -2,7 +2,6 @@ import * as chatOrchestrator from "../orchestrator/chat.orchestrator.js";
 
 export const askMessage = async (req, res) => {
   const { prompt, regenerateSiblingNodeID, answerBool } = req.body;
-  console.log(regenerateSiblingNodeID);
   
   try {
     res.setHeader("Content-Type", "text/event-stream");

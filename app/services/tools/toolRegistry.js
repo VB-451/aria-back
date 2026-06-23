@@ -3,6 +3,7 @@ import { getYoutubeTranscript } from "../../tools/ytt.tool.js";
 import { currentWeather, dailyWeatherFor7Days } from "../../tools/weather.tool.js";
 import { addTask, removeTask, completeTask, listTasks } from "../../tools/todo.tool.js";
 import { safeExec } from "../../tools/exec.tool.js";
+import { getRecentEmails, readEmail } from "../../tools/gmail.tool.js";
 
 export const toolRegistry = {
   search: {
@@ -112,6 +113,22 @@ export const toolRegistry = {
       You were asked to open a group of links, apps or a node app that the user needs at the moment: ${args.type} -> ${args.target}
 
       They are already in the process of being opened right now.
+    `
+  },
+  "gmail.recent": {
+    exec: async ({ count }) => getRecentEmails(count),
+    buildPrompt: (args, data) => `
+      You were asked to check the latest ${args.count} emails that the user got. Describe them, and obligatory mention the id for each email:
+
+      ${JSON.stringify(data, null, 2)}
+    `
+  },
+  "gmail.read": {
+    exec: async ({ id }) => readEmail(id),
+    buildPrompt: (args, data) => `
+      You were asked to read and analyse one specific email that the user got. Describe it:
+
+      ${JSON.stringify(data, null, 2)}
     `
   }
 };

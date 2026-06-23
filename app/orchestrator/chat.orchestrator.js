@@ -4,76 +4,72 @@ import * as routerService from "../services/llm/router.service.js";
 import * as coreService from "../services/llm/core.service.js";
 import * as memoryDecider from "../services/llm/memory-decider.service.js";
 import { executeTool } from "../services/tools/toolExecutor.service.js";
+import { returnAllNotifications } from "../services/notifications/notifications.service.js";
+import { getCurrentDateTime } from "../utils/getCurrentDateTime.js";
+import { getConfigParameter } from "../services/configuration/configuration.service.js";
 
 export const process = async (userPrompt, onToken, eventSendFunction, regenerateNodeID, regenerateAnswer) => {
-    
-  const now = new Date();
-    const currentDateTime = new Intl.DateTimeFormat("sv-SE", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    }).format(now).replace(",", "");
-    
-    
-    console.log(regenerateNodeID);
-    const stm = conversationService.getLastInteractions(1, regenerateNodeID);
-    
-    const route = await routerService.decide({
-      userPrompt,
-      stm,
-      currentDateTime,
-    });
 
-    let toolData = null;
+  const currentDateTime = getCurrentDateTime();
 
-    if (route.function) {
-      toolData = await executeTool(route.function, route.args);
-    }
+  const stm = conversationService.getLastInteractions(getConfigParameter("numberOfInteractionsContext"), regenerateNodeID);
+  console.log(stm);
+  
+  
+  const route = await routerService.decide({
+    userPrompt,
+    stm,
+    currentDateTime,
+  });
 
-    const relevantMemories = await memoryService.getRelatedFacts(userPrompt, route.subjects);
-    console.log(relevantMemories);
-    
-    eventSendFunction("start", {routeFunction: route.function})
+  let toolData = null;
 
-    const finalResponse = await coreService.generate({
-      userPrompt,
-      stm,
-      relevantMemories,
-      routeFunction: route.function,
-      toolData,
-      currentDateTime,
-      onToken
-    });
+  if (route.function) {
+    toolData = await executeTool(route.function, route.args);
+  }
 
-    // console.log(`Final Response: ${finalResponse}`)
+  const relevantMemories = await memoryService.getRelatedFacts(userPrompt, route.subjects);
+  
+  eventSendFunction("start", {routeFunction: route.function})
 
-    let userMessageAppendResult;
-    let assistantMessageAppendResult;
+  const notifications = returnAllNotifications();
 
-    if(!regenerateNodeID){
-      userMessageAppendResult = conversationService.appendUserMessage(userPrompt)
-      assistantMessageAppendResult = conversationService.appendAssistantMessage(finalResponse, route.function)
-    } else if(regenerateAnswer) {
-      assistantMessageAppendResult = conversationService.addSibling(regenerateNodeID, finalResponse, route.function, regenerateAnswer)
-    } else {
-      userMessageAppendResult = conversationService.addSibling(regenerateNodeID, userPrompt, null, regenerateAnswer);
-      assistantMessageAppendResult = conversationService.appendAssistantMessage(finalResponse, route.function);
-    }
+  const finalResponse = await coreService.generate({
+    userPrompt,
+    stm,
+    relevantMemories,
+    routeFunction: route.function,
+    toolData,
+    currentDateTime,
+    onToken,
+    notifications
+  });
 
-    
-    handleMemorySave(userPrompt, finalResponse);
+  // console.log(`Final Response: ${finalResponse}`)
 
-    return {
-      step1_decision: route,
-      reply: finalResponse,
-      id: assistantMessageAppendResult.id,
-      parent_id: assistantMessageAppendResult.parentId,
-      relevantMemories
-    };
+  let userMessageAppendResult;
+  let assistantMessageAppendResult;
+
+  if(!regenerateNodeID){
+    userMessageAppendResult = conversationService.appendUserMessage(userPrompt)
+    assistantMessageAppendResult = conversationService.appendAssistantMessage(finalResponse, route.function)
+  } else if(regenerateAnswer) {
+    assistantMessageAppendResult = conversationService.addSibling(regenerateNodeID, finalResponse, route.function, regenerateAnswer)
+  } else {
+    userMessageAppendResult = conversationService.addSibling(regenerateNodeID, userPrompt, null, regenerateAnswer);
+    assistantMessageAppendResult = conversationService.appendAssistantMessage(finalResponse, route.function);
+  }
+
+  
+  handleMemorySave(userPrompt, finalResponse);
+
+  return {
+    step1_decision: route,
+    reply: finalResponse,
+    id: assistantMessageAppendResult.id,
+    parent_id: assistantMessageAppendResult.parentId,
+    relevantMemories
+  };
 }
 
 const handleMemorySave = async (userPrompt, finalResponse) => {
