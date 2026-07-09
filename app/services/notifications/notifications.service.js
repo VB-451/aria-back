@@ -1,5 +1,7 @@
-const notifications = [];
+import { notificationEvents } from "../../events/notifications.events.js"
+import { dateTimeDiff } from "../../utils/dateTimeDiff.js";
 
+const notifications = [];
 
 const notificationParse = notification =>{
     switch(notification.source){
@@ -7,8 +9,8 @@ const notificationParse = notification =>{
             return `User has new email from ${notification.data.from}\nSubject: ${notification.data.subject}\nID: ${notification.data.id}\n`; break;
         }
         case "todo": {
-            const { task } = notification.data.task;
-            const { days, hours, minutes } = notification.data.remainingTime;
+            const { task } = notification.data;
+            const { days, hours, minutes } = dateTimeDiff(notification.data.due);
 
             const parts = [
                 days && `${days} day${days !== 1 ? "s" : ""}`,
@@ -16,20 +18,31 @@ const notificationParse = notification =>{
                 minutes && `${minutes} minute${minutes !== 1 ? "s" : ""}`,
             ].filter(Boolean);
 
-            return `User has task "${task}" due in ${parts.join(", ")}.`;
+            return `User has task "${task}" due in ${parts.join(", ")}.\n`;
         }
     }
 }
 
 export const addNotification = (source, type, data) => {
-    notifications.push({
+    const newNotification = {
         source,
         type,
         timestamp: Date.now(),
         data
-    });
+    }
+
+    // console.log(newNotification);
+
+    notifications.push(newNotification);
+    
+    notificationEvents.emit(
+        "notification",
+        newNotification
+    );
+    
     notifications.sort((a, b) => a.type.localeCompare(b.source))
     notifications.sort((a, b) => a.source.localeCompare(b.source))
+    console.log(returnAllNotifications());
 }
 
 export const returnAllNotifications = () =>{
@@ -39,7 +52,6 @@ export const returnAllNotifications = () =>{
     for(let notification of result){
         notificationsString += notificationParse(notification)
     }
-    console.log(notificationsString);
     return notificationsString; 
 }
 

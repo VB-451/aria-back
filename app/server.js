@@ -9,10 +9,10 @@ import ttsRoutes from "./routes/tts.routes.js";
 import configurationRoutes from "./routes/configuration.routes.js"
 import launcherRoutes from "./routes/launcher.routes.js"
 import whitelistRoutes from "./routes/whitelist.router.js"
+import notificationRoutes from "./routes/notifications.routes.js"
 import { startWatchers } from "./startup/watchers.js";
 import { loadConfig } from "./services/configuration/configuration.service.js";
 import { loadWhitelist } from "./services/whitelist/whitelist.service.js";
-
 
 await loadConfig()
 await loadWhitelist()
@@ -32,6 +32,7 @@ app.use("/tts", ttsRoutes);
 app.use("/configuration", configurationRoutes);
 app.use("/launcher", launcherRoutes)
 app.use("/whitelist", whitelistRoutes)
+app.use("/notifications", notificationRoutes)
 
 startWatchers();
 

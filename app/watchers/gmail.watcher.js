@@ -3,6 +3,8 @@ import { addNotification } from "../services/notifications/notifications.service
 import { getConfigParameter } from "../services/configuration/configuration.service.js";
 
 let lastSeenID = null;
+let timeoutId = null;
+let running = true;
 
 const pollGmail = async () => {
   try {
@@ -19,8 +21,25 @@ const pollGmail = async () => {
   }
 }
 
-export const startGmailWatcher = async () =>{
+const scheduleNextPoll = () => {
+  if (!running) return;
+
+  const interval = getConfigParameter("gmailInterval") * 1000;
+
+  timeoutId = setTimeout(async () => {
+    await pollGmail();
+    scheduleNextPoll();
+  }, interval);
+};
+
+export const startGmailWatcher = async () => {
   const latest = await getRecentEmails(1);
   lastSeenID = latest[0].id;
-  setInterval(pollGmail, getConfigParameter("gmailInterval") * 1000);
-}
+
+  scheduleNextPoll();
+};
+
+export const stopGmailWatcher = () => {
+  running = false;
+  clearTimeout(timeoutId);
+};

@@ -31,6 +31,8 @@ aria-router (LLM)
    ↓
 Memory Retrieval (Embeddings)
    ↓
+Notifications (Watchers)
+   ↓  
 aria-core (LLM)
    ↓
 Response
@@ -54,13 +56,20 @@ aria-memory (LLM) → Long-term storage (if relevant)
 
   * Retrieves semantically relevant past facts using embeddings
 
+* **Watchers**
+
+  * Check whether the user has new emails or tasks that have an approaching due date
+
+
 * **aria-core**
 
   * Generates the final response using:
 
     * user input
     * tool results (if any)
+    * previous messages
     * relevant memory
+    * notifications
 
 * **aria-memory**
 
@@ -197,6 +206,9 @@ The memory system combines structured storage with semantic search.
 
 * **TTS Integration**
   Converts responses to speech using Piper
+
+* **Configuration Settings**
+  Possiblity of changing parameters like number of interactions used for context, polling intervals etc.
 
 ---
 

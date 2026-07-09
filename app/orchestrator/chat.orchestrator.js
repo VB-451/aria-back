@@ -22,6 +22,9 @@ export const process = async (userPrompt, onToken, eventSendFunction, regenerate
     currentDateTime,
   });
 
+  console.log(route.function);
+  
+
   let toolData = null;
 
   if (route.function) {
